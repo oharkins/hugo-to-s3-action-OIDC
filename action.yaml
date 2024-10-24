@@ -2,8 +2,8 @@ name: "Deploy Hugo to S3 and Cloudfront using OIDC"
 description: "Build and deploy Hugo static websites to AWS S3 and Cloudfront using OIDC"
 author: "oharkins"
 branding:
-  icon: package
-  color: yellow
+  icon: cpu
+  color: gray-dark
 inputs:
   hugo-version:
     description: "Choose a valid Hugo version"
