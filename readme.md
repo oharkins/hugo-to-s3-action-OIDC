@@ -21,6 +21,10 @@ on:
     branches:
       - master
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   build:
     name: Build and Deploy
@@ -58,6 +62,10 @@ on:
       - master
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+  
 jobs:
   build:
     name: Build and Deploy
@@ -96,6 +104,10 @@ on:
   pull_request:
     branches:
       - master
+
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   build:
