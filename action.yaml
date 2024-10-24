@@ -1,0 +1,69 @@
+name: "Deploy Hugo to S3 and Cloudfront useing OIDC"
+description: "Build and deploy Hugo static websites to AWS S3 and Cloudfront using OIDC"
+author: "oharkins"
+branding:
+  icon: package
+  color: yellow
+inputs:
+  hugo-version:
+    description: "Choose a valid Hugo version"
+    required: true
+  target:
+    description: "A deployment target"
+    required: false
+    default: ""
+  config:
+    description: "Config file"
+    required: false
+    default: ""
+  environment:
+    description: "environment"
+    required: false
+    default: ""
+  skip-deployment:
+    description: "Skip deployment to AWS"
+    required: false
+    default: "false"
+runs:
+  using: "composite"
+  steps:
+    - id: install-hugo
+      run: |
+        HUGO_DOWNLOAD=hugo_extended_${{ inputs.hugo-version }}_Linux-64bit.tar.gz
+        wget https://github.com/gohugoio/hugo/releases/download/v${{ inputs.hugo-version }}/${HUGO_DOWNLOAD}
+        tar xvzf ${HUGO_DOWNLOAD} hugo
+        mv hugo $HOME/hugo
+      shell: bash
+
+    - id: download-themes
+      run: |
+        git submodule init
+        git submodule update
+      shell: bash
+
+    - id: hugo-build
+      run: $HOME/hugo
+      shell: bash
+
+    - id: deploy-to-s3
+      if: inputs.skip-deployment == 'false'
+      run: |
+        HUGO_FLAGS=" --logLevel info --invalidateCDN --maxDeletes -1"
+
+        if [[ "${{ inputs.environment }}" ]]; then
+          HUGO_FLAGS="$HUGO_FLAGS --environment=${{ inputs.environment }}"
+        fi
+
+        if [[ "${{ inputs.config }}" ]]; then
+          HUGO_FLAGS="$HUGO_FLAGS --config=${{ inputs.config }}"
+        fi
+
+        if [[ "${{ inputs.target }}" ]]; then
+          HUGO_FLAGS="$HUGO_FLAGS --target=${{ inputs.target }}"
+        fi
+
+        $HOME/hugo deploy $HUGO_FLAGS
+      env:
+        AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
+        AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
+      shell: bash
