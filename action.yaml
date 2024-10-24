@@ -1,4 +1,4 @@
-name: "Deploy Hugo to S3 and Cloudfront useing OIDC"
+name: "Deploy Hugo to S3 and Cloudfront using OIDC"
 description: "Build and deploy Hugo static websites to AWS S3 and Cloudfront using OIDC"
 author: "oharkins"
 branding:
