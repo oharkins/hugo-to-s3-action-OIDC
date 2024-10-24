@@ -24,6 +24,14 @@ inputs:
     description: "Skip deployment to AWS"
     required: false
     default: "false"
+  pipeline-execution-role:
+    description: The role that will be assumed during the Configure AWS step.
+    required: true
+    type: string
+  aws-region:
+    description: AWS Region the stack is being deployed to
+    required: true
+    type: string
 runs:
   using: "composite"
   steps:
@@ -45,6 +53,14 @@ runs:
       run: $HOME/hugo
       shell: bash
 
+    - name: Configure AWS
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: ${{ inputs.aws-region }}
+        role-to-assume: ${{ inputs.pipeline-execution-role }}
+        role-duration-seconds: 3600
+        role-skip-session-tagging: true
+
     - id: deploy-to-s3
       if: inputs.skip-deployment == 'false'
       run: |
@@ -63,7 +79,4 @@ runs:
         fi
 
         $HOME/hugo deploy $HUGO_FLAGS
-      env:
-        AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
-        AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
       shell: bash
